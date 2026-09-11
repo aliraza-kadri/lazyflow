@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b172a;
+
+  /* LazyFlow brand palette */
+  --lf-ink: #0b172a;
+  --lf-ink-2: #0757c9;
+  --lf-ink-border: #c8dfff;
+  --lf-surface: #f8fafc;
+  --lf-card: #ffffff;
+  --lf-nav: #ffffff;
+  --lf-deep: #f1f6fc;
+  --lf-border: #dce7f3;
+  --lf-muted: #52627a;
+  --lf-accent: #087bff;
+  --lf-accent-2: #18c8ff;
+  --lf-accent-soft: #eaf4ff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-lf-ink: var(--lf-ink);
+  --color-lf-ink-2: var(--lf-ink-2);
+  --color-lf-surface: var(--lf-surface);
+  --color-lf-card: var(--lf-card);
+  --color-lf-nav: var(--lf-nav);
+  --color-lf-deep: var(--lf-deep);
+  --color-lf-border: var(--lf-border);
+  --color-lf-muted: var(--lf-muted);
+  --color-lf-accent: var(--lf-accent);
+  --color-lf-accent-2: var(--lf-accent-2);
+  --color-lf-accent-soft: var(--lf-accent-soft);
+  --font-sans: var(--font-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lf-gradient-text {
+  background: linear-gradient(90deg, var(--lf-accent) 0%, var(--lf-accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lf-gradient-bg {
+  background: linear-gradient(135deg, var(--lf-accent) 0%, var(--lf-accent-2) 100%);
+}
+
+.lf-grid-fade {
+  background-image:
+    linear-gradient(rgba(8, 123, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 123, 255, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+
+::selection {
+  background: var(--lf-accent);
+  color: var(--foreground);
+}
