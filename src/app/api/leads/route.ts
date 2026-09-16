@@ -3,10 +3,15 @@ import { getLeads, saveLead, clearAllLeads, loadSampleLeads } from "@/lib/db";
 import type { Lead } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   const leads = await getLeads();
-  return NextResponse.json(leads);
+  return NextResponse.json(leads, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -26,7 +31,7 @@ export async function POST(request: Request) {
 
     const newLead: Lead = {
       id: body.id || `ld_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      name: body.name?.trim() || "WhatsApp Enquiry",
+      name: body.name?.trim() || "Website Visitor",
       business: body.business?.trim() || "",
       phone: body.phone?.trim() || body.whatsapp?.trim() || "",
       email: body.email?.trim() || "",
@@ -35,12 +40,17 @@ export async function POST(request: Request) {
       process: body.process?.trim() || "",
       status: body.status || "New",
       notes: body.notes?.trim() || "",
-      source: body.source?.trim() || "Website",
+      source: body.source?.trim() || "Website Form",
       createdAt: body.createdAt || new Date().toISOString(),
     };
 
     const saved = await saveLead(newLead);
-    return NextResponse.json(saved, { status: 201 });
+    return NextResponse.json(saved, {
+      status: 201,
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
   } catch (error) {
     console.error("Save lead error:", error);
     return NextResponse.json({ error: "Failed to save lead", details: String(error) }, { status: 500 });

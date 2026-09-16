@@ -11,9 +11,9 @@ import type { Lead, Service, CaseStudy } from "./types";
 export type WebsiteContent = typeof mockWebsiteContent;
 export type Settings = typeof mockSettings;
 
-// In-memory fallback if MongoDB connection is not configured or temporarily down
+// In-memory fallback if MongoDB connection is not configured
 const fallbackState = {
-  leads: [...mockLeads],
+  leads: [] as Lead[],
   services: [...mockServices],
   caseStudies: [...mockCaseStudies],
   content: { ...mockWebsiteContent },
@@ -26,13 +26,9 @@ const fallbackState = {
 export async function getLeads(): Promise<Lead[]> {
   try {
     const db = await getDb();
-    if (!db) return fallbackState.leads;
-
-    const count = await db.collection("leads").countDocuments();
-    if (count === 0) {
-      // Auto-seed sample leads on first run
-      await db.collection("leads").insertMany(mockLeads.map((l) => ({ ...l })));
-      return mockLeads;
+    if (!db) {
+      console.warn("MongoDB not connected, returning fallback leads");
+      return fallbackState.leads;
     }
 
     const leads = await db
@@ -70,6 +66,7 @@ export async function saveLead(lead: Lead): Promise<Lead> {
   try {
     const db = await getDb();
     if (!db) {
+      console.warn("MongoDB not connected, saving lead to fallback memory");
       const index = fallbackState.leads.findIndex((l) => l.id === lead.id);
       if (index >= 0) {
         fallbackState.leads[index] = lead;

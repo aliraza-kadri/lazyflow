@@ -51,7 +51,7 @@ export default function AdminLeadsPage() {
   };
 
   const fetchLeads = () => {
-    fetch("/api/leads")
+    fetch("/api/leads", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setLeadsList(data);
