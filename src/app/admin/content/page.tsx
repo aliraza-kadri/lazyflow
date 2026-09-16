@@ -1,25 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminTopbar from "@/components/admin/topbar";
 import { Panel } from "@/components/admin/stat-card";
 import { Field, TextInput, TextArea } from "@/components/ui/form-field";
 import Button from "@/components/ui/button";
 import { mockWebsiteContent } from "@/lib/mock-data";
+import { WHATSAPP_NUMBER_STORAGE_KEY } from "@/lib/whatsapp";
 
 export default function AdminContentPage() {
   const [content, setContent] = useState(mockWebsiteContent);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data === "object") {
+          setContent((prev) => ({ ...prev, ...data }));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   function update<K extends keyof typeof content>(key: K, value: (typeof content)[K]) {
     setContent((c) => ({ ...c, [key]: value }));
   }
 
-  function handleSave() {
-    // NOTE: local state only for now — wire this to Supabase / an API route
-    // to persist edits and have the public site read from it.
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  async function handleSave() {
+    setSaving(true);
+    const whatsappNumber = content.contactWhatsapp.replace(/\D/g, "");
+
+    const res = await fetch("/api/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(content),
+    });
+
+    // Also update settings API to sync contact details & social links across header/footer
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        whatsappNumber,
+        email: content.contactEmail,
+        instagram: content.instagramUrl,
+        linkedin: content.linkedinUrl,
+      }),
+    });
+
+    setSaving(false);
+    if (res.ok) {
+      window.localStorage.setItem(WHATSAPP_NUMBER_STORAGE_KEY, whatsappNumber);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  }
+
+  if (loading) {
+    return (
+      <>
+        <AdminTopbar title="Website Content" description="Edit copy shown across the public site" />
+        <div className="p-8 text-sm text-lf-muted">Loading content...</div>
+      </>
+    );
   }
 
   return (
@@ -75,8 +121,8 @@ export default function AdminContentPage() {
         </Panel>
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave}>Save Changes</Button>
-          {saved && <span className="text-sm font-medium text-lf-accent-2">Saved ✓ (demo only, not persisted)</span>}
+          <Button onClick={handleSave}>{saving ? "Saving..." : "Save Changes"}</Button>
+          {saved && <span className="text-sm font-medium text-lf-accent-2">Saved ✓</span>}
         </div>
       </div>
     </>

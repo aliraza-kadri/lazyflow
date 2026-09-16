@@ -34,12 +34,14 @@ type ButtonAsLink = CommonProps & {
   external?: boolean;
   onClick?: never;
   type?: never;
+  disabled?: never;
 };
 
 type ButtonAsButton = CommonProps & {
   href?: undefined;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   type?: "button" | "submit";
+  disabled?: boolean;
 };
 
 export default function Button(props: ButtonAsLink | ButtonAsButton) {
@@ -64,9 +66,9 @@ export default function Button(props: ButtonAsLink | ButtonAsButton) {
     );
   }
 
-  const { onClick, type = "button" } = props as ButtonAsButton;
+  const { onClick, type = "button", disabled } = props as ButtonAsButton;
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button type={type} onClick={onClick} disabled={disabled} className={classes}>
       {children}
       {icon}
     </button>

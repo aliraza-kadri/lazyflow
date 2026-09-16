@@ -6,12 +6,17 @@ import { siteConfig } from "@/config/site";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
 
+import { getSettings } from "@/lib/db";
+
 export const metadata: Metadata = {
   title: "Contact",
   description: "Tell LazyFlow about your business and what's slowing it down.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSettings();
+  const contactEmail = settings.email || siteConfig.email;
+
   return (
     <>
       <PageHeader
@@ -38,8 +43,8 @@ export default function ContactPage() {
             <div className="flex flex-col gap-4 rounded-2xl border border-lf-border bg-lf-surface p-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-lf-muted">Email</p>
-                <a href={`mailto:${siteConfig.email}`} className="text-sm font-medium text-lf-ink">
-                  {siteConfig.email}
+                <a href={`mailto:${contactEmail}`} className="text-sm font-medium text-lf-ink">
+                  {contactEmail}
                 </a>
               </div>
               <div>

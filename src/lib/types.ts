@@ -12,6 +12,7 @@ export type Lead = {
   status: LeadStatus;
   notes: string;
   createdAt: string; // ISO date
+  source?: string;
 };
 
 export type Service = {

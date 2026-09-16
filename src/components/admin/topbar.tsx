@@ -3,7 +3,15 @@
 import { useState } from "react";
 import AdminSidebar from "@/components/admin/sidebar";
 
-export default function AdminTopbar({ title, description }: { title: string; description?: string }) {
+export default function AdminTopbar({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -15,9 +23,10 @@ export default function AdminTopbar({ title, description }: { title: string; des
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden items-center gap-2 rounded-full border border-lf-border px-3 py-1.5 text-xs font-medium text-lf-muted md:flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-lf-accent-2" />
-            Demo Data — Not Connected
+          {action && <div className="flex items-center gap-2">{action}</div>}
+          <span className="hidden items-center gap-2 rounded-full border border-lf-accent/30 bg-lf-accent-soft px-3 py-1.5 text-xs font-medium text-lf-accent md:flex">
+            <span className="h-2 w-2 rounded-full bg-lf-accent animate-pulse" />
+            Live Data — Connected
           </span>
           <div className="flex h-9 w-9 items-center justify-center rounded-full lf-gradient-bg text-xs font-semibold text-white">
             LF

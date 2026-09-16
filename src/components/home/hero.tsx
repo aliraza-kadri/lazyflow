@@ -1,8 +1,16 @@
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
 import { Section } from "@/components/ui/section";
+import { getContent } from "@/lib/db";
 
-export default function Hero() {
+export default async function Hero() {
+  const content = await getContent();
+
+  const headingLines = content.heroHeading ? content.heroHeading.split("\n") : [
+    "Your business has problems.",
+    "We build the systems to solve them.",
+  ];
+
   return (
     <div className="relative overflow-hidden bg-lf-deep">
       <div className="absolute inset-0 lf-grid-fade" />
@@ -16,24 +24,38 @@ export default function Hero() {
             Business Automation Studio
           </div>
 
-          <h1 className="mt-7 text-4xl font-bold leading-[1.08] tracking-tight text-lf-ink md:text-6xl">
-            Your business has problems.
-            <br />
-            We build the{" "}
-            <span className="lf-gradient-text">systems</span> to solve them.
+          <h1 className="mt-7 text-4xl font-bold leading-[1.08] tracking-tight text-lf-ink md:text-6xl whitespace-pre-line">
+            {headingLines.map((line, idx) => {
+              if (line.includes("systems")) {
+                const parts = line.split("systems");
+                return (
+                  <span key={idx}>
+                    {parts[0]}
+                    <span className="lf-gradient-text">systems</span>
+                    {parts[1]}
+                    {idx < headingLines.length - 1 && <br />}
+                  </span>
+                );
+              }
+              return (
+                <span key={idx}>
+                  {line}
+                  {idx < headingLines.length - 1 && <br />}
+                </span>
+              );
+            })}
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-lf-muted md:text-lg">
-            LazyFlow helps businesses identify repetitive work, remove bottlenecks and
-            build custom automation that makes operations simpler and more efficient.
+            {content.heroDescription}
           </p>
 
           <div className="mt-10 flex flex-col gap-3.5 sm:flex-row">
             <WhatsAppButton message={whatsappMessages.automateMyBusiness} size="lg">
-              Automate My Business
+              {content.ctaPrimaryText || "Automate My Business"}
             </WhatsAppButton>
             <WhatsAppButton message={whatsappMessages.talkToUs} variant="secondary" size="lg">
-              Talk to Us
+              {content.ctaSecondaryText || "Talk to Us"}
             </WhatsAppButton>
           </div>
 

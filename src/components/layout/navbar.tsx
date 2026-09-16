@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
-import { LogoHorizontal, LogoIcon } from "@/components/ui/logo";
+import { LogoHorizontal } from "@/components/ui/logo";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
 
@@ -29,10 +29,7 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-6 md:px-10 lg:px-16">
-        <LogoHorizontal className="hidden sm:inline-flex" />
-        <Link href="/" aria-label="LazyFlow home" className="sm:hidden">
-          <LogoIcon />
-        </Link>
+        <LogoHorizontal />
 
         <nav className="hidden items-center gap-1 lg:flex">
           {siteConfig.nav.map((item) => {
@@ -66,7 +63,7 @@ export default function Navbar() {
         <button
           aria-label="Toggle menu"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-lf-border lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-lf-border focus:outline-none focus-visible:outline-none focus-visible:ring-0 lg:hidden"
         >
           <div className="flex flex-col gap-[5px]">
             <span

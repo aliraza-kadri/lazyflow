@@ -1,5 +1,13 @@
 import { siteConfig } from "@/config/site";
 
+export const WHATSAPP_NUMBER_STORAGE_KEY = "lazyflow-whatsapp-number";
+
+export function getStoredWhatsAppNumber() {
+  if (typeof window === "undefined") return siteConfig.whatsappNumber;
+
+  return window.localStorage.getItem(WHATSAPP_NUMBER_STORAGE_KEY) || siteConfig.whatsappNumber;
+}
+
 /**
  * Builds a wa.me deep link with a pre-filled message.
  * Centralised so the WhatsApp number only needs to change in one place

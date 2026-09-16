@@ -3,6 +3,7 @@ import PageHeader from "@/components/layout/page-header";
 import { Section, SectionHeading, Eyebrow } from "@/components/ui/section";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
+import { getContent } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "About",
@@ -29,7 +30,9 @@ const values = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getContent();
+
   return (
     <>
       <PageHeader
@@ -46,21 +49,22 @@ export default function AboutPage() {
               Business-first automation, not tool-first automation
             </h2>
             <div className="mt-5 flex flex-col gap-4 text-[15px] leading-relaxed text-lf-muted">
-              <p>
-                LazyFlow began with a simple observation: most businesses don&apos;t need
-                more software — they need someone to actually look at how they work and
-                fix what&apos;s repetitive, manual or broken.
-              </p>
-              <p>
-                So instead of selling fixed automation packages, we built LazyFlow around a
-                process: understand the business, identify the real problems, design the
-                right automation, implement it properly, and keep improving it.
-              </p>
-              <p>
-                We work with whatever tools genuinely fit the problem — n8n, WhatsApp, AI,
-                APIs, CRMs and more — but the value we deliver was never the tool. It&apos;s
-                the system we design around your business.
-              </p>
+              {content.aboutText ? (
+                <p className="whitespace-pre-line">{content.aboutText}</p>
+              ) : (
+                <>
+                  <p>
+                    LazyFlow began with a simple observation: most businesses don&apos;t need
+                    more software — they need someone to actually look at how they work and
+                    fix what&apos;s repetitive, manual or broken.
+                  </p>
+                  <p>
+                    So instead of selling fixed automation packages, we built LazyFlow around a
+                    process: understand the business, identify the real problems, design the
+                    right automation, implement it properly, and keep improving it.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
@@ -7,6 +8,29 @@ import { LogoHorizontal } from "@/components/ui/logo";
 
 export default function Footer() {
   const pathname = usePathname();
+  const [settings, setSettings] = useState({
+    email: siteConfig.email,
+    whatsappNumber: siteConfig.whatsappNumber,
+    instagram: siteConfig.social.instagram,
+    linkedin: siteConfig.social.linkedin,
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data === "object") {
+          setSettings((prev) => ({
+            email: data.email || prev.email,
+            whatsappNumber: data.whatsappNumber || prev.whatsappNumber,
+            instagram: data.instagram || prev.instagram,
+            linkedin: data.linkedin || prev.linkedin,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   if (pathname?.startsWith("/admin")) return null;
 
   return (
@@ -38,13 +62,13 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-white/90">Contact</h4>
             <ul className="mt-4 flex flex-col gap-3 text-sm text-white/55">
               <li>
-                <a href={`mailto:${siteConfig.email}`} className="hover:text-white transition-colors">
-                  {siteConfig.email}
+                <a href={`mailto:${settings.email}`} className="hover:text-white transition-colors">
+                  {settings.email}
                 </a>
               </li>
               <li>
                 <a
-                  href={`https://wa.me/${siteConfig.whatsappNumber}`}
+                  href={`https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -61,7 +85,7 @@ export default function Footer() {
             <ul className="mt-4 flex flex-col gap-3 text-sm text-white/55">
               <li>
                 <a
-                  href={siteConfig.social.instagram}
+                  href={settings.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -71,7 +95,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href={siteConfig.social.linkedin}
+                  href={settings.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"

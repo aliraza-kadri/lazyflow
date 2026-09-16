@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/layout/page-header";
 import { Section, SectionHeading, Card } from "@/components/ui/section";
-import { automationAreas } from "@/lib/content";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
+import { getServices } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -50,7 +50,10 @@ const detail: Record<string, string[]> = {
   ],
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const allServices = await getServices();
+  const activeServices = allServices.filter((s) => s.active);
+
   return (
     <>
       <PageHeader
@@ -61,18 +64,27 @@ export default function ServicesPage() {
 
       <Section className="py-24 md:py-28">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {automationAreas.map((a) => (
-            <Card key={a.title} className="flex flex-col">
-              <h3 className="text-xl font-semibold text-lf-ink">{a.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-lf-muted">{a.desc}</p>
-              <ul className="mt-5 flex flex-col gap-2.5 border-t border-lf-border pt-5">
-                {detail[a.title]?.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-lf-ink/80">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full lf-gradient-bg" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          {activeServices.map((s) => (
+            <Card key={s.id} className="flex flex-col">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-lf-ink">{s.title}</h3>
+                {s.category && (
+                  <span className="rounded-full bg-lf-accent-soft px-2.5 py-1 text-[11px] font-semibold text-lf-accent">
+                    {s.category}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-lf-muted">{s.description}</p>
+              {detail[s.title] && (
+                <ul className="mt-5 flex flex-col gap-2.5 border-t border-lf-border pt-5">
+                  {detail[s.title].map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm text-lf-ink/80">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full lf-gradient-bg" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Card>
           ))}
         </div>

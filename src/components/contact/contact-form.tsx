@@ -79,11 +79,33 @@ export default function ContactForm() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
-    // NOTE: Frontend-only for now. When Supabase is connected, replace this
-    // simulated delay with an actual insert into a `leads` table / API route.
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          business: values.business,
+          phone: values.whatsapp,
+          email: values.email,
+          industry: values.industry,
+          problem: values.problem,
+          process: values.process,
+          source: "Website Form",
+          status: "New",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
+
+      setSubmitted(true);
+    } catch {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -200,7 +222,7 @@ export default function ContactForm() {
       </div>
 
       <div className="mt-8 flex flex-col items-start gap-4">
-        <Button type="submit" size="lg" className="w-full sm:w-auto">
+        <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting}>
           {submitting ? "Sending..." : "Send Details"}
         </Button>
         <p className="text-xs text-lf-muted">

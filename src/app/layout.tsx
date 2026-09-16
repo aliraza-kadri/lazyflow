@@ -3,6 +3,7 @@ import "./globals.css";
 import { siteConfig } from "@/config/site";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import FloatingWhatsAppWidget from "@/components/ui/whatsapp-widget";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <FloatingWhatsAppWidget />
       </body>
     </html>
   );
