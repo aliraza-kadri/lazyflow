@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import AdminSidebar from "@/components/admin/sidebar";
 import Modal from "@/components/admin/modal";
 
@@ -67,9 +69,20 @@ export default function AdminTopbar({
             </span>
           )}
 
-          <div className="flex h-9 w-9 items-center justify-center rounded-full lf-gradient-bg text-xs font-semibold text-white">
-            LF
-          </div>
+          <Link
+            href="/admin/settings"
+            title="LazyFlow Admin"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-lf-border bg-white shadow-xs overflow-hidden p-1 hover:border-lf-accent/50 hover:shadow-sm transition-all"
+          >
+            <Image
+              src="/logo/lazyflow-icon.png"
+              alt="LazyFlow Logo"
+              width={36}
+              height={36}
+              className="h-full w-full object-contain"
+              priority
+            />
+          </Link>
 
           <button
             onClick={async () => {
