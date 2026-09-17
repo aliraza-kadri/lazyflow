@@ -58,23 +58,26 @@ export async function POST(request: Request) {
 
     const resetUrl = `${origin}/admin/reset-password?token=${token}`;
 
-    // Send email
+    // Send email to target recipient
     const emailResult = await sendPasswordResetEmail({
-      to: admin.email,
+      to: targetEmail,
       resetUrl,
     });
 
+    if (!emailResult.sent) {
+      return NextResponse.json(
+        {
+          error: `Could not send reset email to ${targetEmail}: ${emailResult.error || "Email service error"}. Please check your GMAIL_APP_PASSWORD in Vercel settings or use Master PIN.`,
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      email: admin.email,
-      sentEmail: emailResult.sent,
-      provider: emailResult.provider,
-      errorDetail: emailResult.error,
-      // Always provide reset link so the user is never blocked
-      fallbackResetUrl: resetUrl,
-      message: emailResult.sent
-        ? `A password reset link has been sent to ${admin.email}. Please check your inbox!`
-        : `Reset link generated successfully! (Email service not configured in Vercel, use direct link below)`,
+      email: targetEmail,
+      sentEmail: true,
+      message: `A password reset link has been sent to ${targetEmail}. Please check your inbox and Spam folder!`,
     });
   } catch (error) {
     console.error("Forgot password error:", error);

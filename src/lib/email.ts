@@ -81,7 +81,8 @@ export async function sendPasswordResetEmail({
   }
 
   // 2. Try Nodemailer if SMTP/Gmail credentials are configured
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const rawUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpUser = rawUser ? rawUser.trim() : "";
   const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
   const smtpPass = rawPass ? rawPass.replace(/\s+/g, "") : "";
 
@@ -110,17 +111,18 @@ export async function sendPasswordResetEmail({
             }
       );
 
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: `"LazyFlow Security" <${smtpUser}>`,
-        to,
+        to: to.trim(),
         subject: "Reset Your LazyFlow Admin Password",
         html: htmlContent,
       });
 
+      console.log("Email sent successfully to", to, "MessageId:", info.messageId);
       return { sent: true, provider: isGmail ? "gmail" : "smtp" };
-    } catch (err) {
-      console.warn("SMTP email error:", err);
-      return { sent: false, error: String(err) };
+    } catch (err: any) {
+      console.error("SMTP email send error:", err?.message || err);
+      return { sent: false, error: err?.message || String(err) };
     }
   }
 
