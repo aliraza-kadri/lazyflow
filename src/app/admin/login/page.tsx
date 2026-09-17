@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="hello.lazyflow@gmail.com"
+                placeholder="admin@example.com or username"
                 autoComplete="username"
                 className="w-full rounded-xl border border-lf-border bg-lf-surface px-4 py-3 text-sm text-lf-ink placeholder:text-lf-muted/50 focus:border-lf-accent focus:outline-none focus:ring-1 focus:ring-lf-accent transition-all"
               />
@@ -153,11 +153,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Setup Hint */}
-          <div className="mt-6 rounded-2xl border border-dashed border-lf-border bg-lf-surface/60 p-3.5 text-center text-xs text-lf-muted">
-            Admin: <code className="text-lf-ink font-mono font-semibold">hello.lazyflow@gmail.com</code> (or <code className="text-lf-ink font-mono font-semibold">admin</code>) / <code className="text-lf-ink font-mono font-semibold">Admin@LazyFlow2026</code>
-          </div>
         </div>
 
         <div className="mt-6 text-center">

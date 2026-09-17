@@ -205,19 +205,16 @@ export default function AdminForgotPasswordPage() {
                 <form onSubmit={handleSendEmail} className="space-y-4">
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-lf-muted">
-                      Admin Email or Username
+                      Registered Email or Username
                     </label>
                     <input
                       type="text"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="hello.lazyflow@gmail.com"
+                      placeholder="name@example.com or username"
                       className="w-full rounded-xl border border-lf-border bg-lf-surface px-4 py-3 text-sm text-lf-ink placeholder:text-lf-muted/50 focus:border-lf-accent focus:outline-none focus:ring-1 focus:ring-lf-accent transition-all"
                     />
-                    <p className="mt-1 text-[11px] text-lf-muted">
-                      Admin email: <code className="font-mono text-lf-ink">hello.lazyflow@gmail.com</code> (or enter <code className="font-mono text-lf-ink">admin</code>)
-                    </p>
                   </div>
 
                   <button
@@ -228,10 +225,10 @@ export default function AdminForgotPasswordPage() {
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        Generating Reset Link...
+                        Sending Reset Link...
                       </>
                     ) : (
-                      "Generate Reset Link"
+                      "Send Reset Link"
                     )}
                   </button>
                 </form>
@@ -241,9 +238,9 @@ export default function AdminForgotPasswordPage() {
             <>
               {/* Master Recovery PIN Mode */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold tracking-tight text-lf-ink">Instant PIN Reset</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-lf-ink">Security Key Recovery</h1>
                 <p className="mt-1.5 text-xs text-lf-muted">
-                  Use your secret Master Recovery PIN to reset your credentials without waiting for an email.
+                  Use your master recovery security key to reset your credentials.
                 </p>
               </div>
 
@@ -268,16 +265,13 @@ export default function AdminForgotPasswordPage() {
                     Master Recovery PIN
                   </label>
                   <input
-                    type="text"
+                    type="password"
                     required
                     value={recoveryPin}
                     onChange={(e) => setRecoveryPin(e.target.value)}
-                    placeholder="e.g. 892410"
+                    placeholder="••••••"
                     className="w-full rounded-xl border border-lf-border bg-lf-surface px-4 py-3 text-sm text-lf-ink font-mono placeholder:text-lf-muted/50 focus:border-lf-accent focus:outline-none focus:ring-1 focus:ring-lf-accent transition-all"
                   />
-                  <p className="mt-1 text-[11px] text-lf-muted">
-                    Default key: <code className="font-mono text-lf-ink">892410</code>
-                  </p>
                 </div>
 
                 <div>
