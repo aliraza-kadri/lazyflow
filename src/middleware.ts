@@ -12,7 +12,9 @@ export async function middleware(request: NextRequest) {
 
   // Public admin auth pages
   const isAuthPage =
-    pathname === "/admin/login" || pathname === "/admin/forgot-password";
+    pathname === "/admin/login" ||
+    pathname === "/admin/forgot-password" ||
+    pathname === "/admin/reset-password";
 
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const { valid } = await verifySessionToken(sessionCookie || "");

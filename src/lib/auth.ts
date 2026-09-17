@@ -232,3 +232,99 @@ export async function verifyRecoveryPin(pin: string): Promise<boolean> {
   const target = admin.recoveryPin || DEFAULT_RECOVERY_PIN;
   return clean === target || clean === DEFAULT_RECOVERY_PIN;
 }
+
+// ============================================================================
+// Password Reset Link Tokens (Valid for 30 minutes)
+// ============================================================================
+export async function createPasswordResetToken(email: string): Promise<string> {
+  const expiry = Math.floor(Date.now() / 1000) + 30 * 60; // 30 minutes
+  const random = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const payload = `${email.toLowerCase()}:${expiry}:${random}`;
+  const enc = new TextEncoder();
+  const key = await getSigningKey();
+  const sigBuffer = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+  const sig = Array.from(new Uint8Array(sigBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const token = Buffer.from(`${payload}:${sig}`).toString("base64url");
+
+  const db = await getDb();
+  if (db) {
+    await db.collection("password_resets").insertOne({
+      token,
+      email: email.toLowerCase(),
+      expiresAt: new Date(expiry * 1000),
+      used: false,
+      createdAt: new Date(),
+    });
+  }
+
+  return token;
+}
+
+export async function verifyPasswordResetToken(
+  token: string
+): Promise<{ valid: boolean; email?: string }> {
+  try {
+    if (!token) return { valid: false };
+    const decoded = Buffer.from(token, "base64url").toString("utf-8");
+    const parts = decoded.split(":");
+    if (parts.length !== 4) return { valid: false };
+
+    const [email, expiryStr, random, sig] = parts;
+    const expiry = parseInt(expiryStr, 10);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (isNaN(expiry) || now > expiry) {
+      return { valid: false };
+    }
+
+    const payload = `${email}:${expiryStr}:${random}`;
+    const enc = new TextEncoder();
+    const key = await getSigningKey();
+    const sigBuffer = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+    const expectedSig = Array.from(new Uint8Array(sigBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (sig !== expectedSig) {
+      return { valid: false };
+    }
+
+    // Check in database if already used
+    const db = await getDb();
+    if (db) {
+      const doc = await db.collection("password_resets").findOne({ token });
+      if (doc && doc.used) {
+        return { valid: false };
+      }
+    }
+
+    return { valid: true, email };
+  } catch {
+    return { valid: false };
+  }
+}
+
+export async function consumePasswordResetToken(
+  token: string,
+  newPassword: string
+): Promise<boolean> {
+  const { valid, email } = await verifyPasswordResetToken(token);
+  if (!valid || !email) return false;
+
+  await updateAdminCredentials({ newPassword });
+
+  const db = await getDb();
+  if (db) {
+    await db.collection("password_resets").updateOne(
+      { token },
+      { $set: { used: true, usedAt: new Date() } }
+    );
+  }
+
+  return true;
+}

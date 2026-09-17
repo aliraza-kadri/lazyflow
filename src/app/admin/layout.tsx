@@ -13,8 +13,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") || "";
 
-  // For Login and Forgot Password pages, do not show the dashboard sidebar
-  if (pathname === "/admin/login" || pathname === "/admin/forgot-password") {
+  // For Login, Forgot Password, and Reset Password pages, do not show the dashboard sidebar
+  if (
+    pathname === "/admin/login" ||
+    pathname === "/admin/forgot-password" ||
+    pathname === "/admin/reset-password"
+  ) {
     return <>{children}</>;
   }
 
