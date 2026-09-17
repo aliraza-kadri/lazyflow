@@ -28,7 +28,8 @@ export async function POST(request: Request) {
     const matchesIdentifier =
       identifier === admin.email.toLowerCase() ||
       identifier === (admin.username || "admin").toLowerCase() ||
-      identifier === "admin";
+      identifier === "admin" ||
+      identifier === "hello.lazyflow@gmail.com";
 
     if (!matchesIdentifier) {
       return NextResponse.json(

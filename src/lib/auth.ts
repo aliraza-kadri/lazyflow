@@ -8,7 +8,7 @@ export {
 } from "./session";
 
 const AUTH_SECRET = process.env.ADMIN_SESSION_SECRET || "lazyflow-auth-secret-key-prod-2026-secure";
-export const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@lazyflow.in";
+export const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || "hello.lazyflow@gmail.com";
 export const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@LazyFlow2026";
 export const DEFAULT_RECOVERY_PIN = process.env.ADMIN_RECOVERY_KEY || "892410";
 

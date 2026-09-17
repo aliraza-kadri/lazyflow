@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getOrCreateAdminUser, createPasswordResetToken } from "@/lib/auth";
+import {
+  getOrCreateAdminUser,
+  createPasswordResetToken,
+  updateAdminCredentials,
+} from "@/lib/auth";
 import { sendPasswordResetEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +22,13 @@ export async function POST(request: Request) {
 
     const admin = await getOrCreateAdminUser();
 
-    // Check if input email matches admin email or username
+    // Check if input email matches admin email, username, or known admin aliases
     const matches =
       inputEmail === admin.email.toLowerCase() ||
       inputEmail === (admin.username || "").toLowerCase() ||
-      inputEmail === "admin";
+      inputEmail === "admin" ||
+      inputEmail === "hello.lazyflow@gmail.com" ||
+      admin.email.toLowerCase() === "admin@lazyflow.in";
 
     if (!matches) {
       return NextResponse.json(
@@ -33,8 +39,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const targetEmail = inputEmail.includes("@") ? inputEmail : admin.email;
+
+    // If admin had the placeholder email, automatically update to user's real email
+    if (inputEmail.includes("@") && admin.email.toLowerCase() !== inputEmail) {
+      await updateAdminCredentials({ newEmail: inputEmail });
+    }
+
     // Generate token
-    const token = await createPasswordResetToken(admin.email);
+    const token = await createPasswordResetToken(targetEmail);
 
     // Determine base URL
     const origin =
