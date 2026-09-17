@@ -17,7 +17,7 @@ export default function FloatingWhatsAppWidget() {
 
   // Fetch live WhatsApp number from settings and restore saved user details
   useEffect(() => {
-    fetch("/api/site-settings")
+    fetch("/api/site-settings", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.whatsappNumber) setWhatsappNumber(data.whatsappNumber);

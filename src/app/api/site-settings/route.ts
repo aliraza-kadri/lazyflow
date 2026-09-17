@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSettings, saveSettings } from "@/lib/db";
+import { getDb } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   const settings = await getSettings();
-  return NextResponse.json({ whatsappNumber: settings.whatsappNumber });
+  return NextResponse.json(
+    { whatsappNumber: settings.whatsappNumber },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0, must-revalidate",
+      },
+    }
+  );
 }
 
 export async function POST(request: Request) {
@@ -19,7 +29,21 @@ export async function POST(request: Request) {
       );
     }
     const updated = await saveSettings({ whatsappNumber });
-    return NextResponse.json({ whatsappNumber: updated.whatsappNumber });
+    const db = await getDb();
+
+    try {
+      revalidatePath("/", "layout");
+    } catch {}
+
+    return NextResponse.json(
+      {
+        whatsappNumber: updated.whatsappNumber,
+        persistedInDb: !!db,
+      },
+      {
+        headers: { "Cache-Control": "no-store, max-age=0" },
+      }
+    );
   } catch {
     return NextResponse.json({ error: "Failed to save site settings" }, { status: 500 });
   }

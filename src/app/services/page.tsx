@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "WhatsApp, AI, workflow, lead, CRM and custom business automation — designed around your specific problems, not sold as fixed packages.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const detail: Record<string, string[]> = {
   "WhatsApp Automation": [
     "Instant auto-replies for common questions",

@@ -7,6 +7,9 @@ import SolutionsGrid from "@/components/home/solutions-grid";
 import AutomationFinder from "@/components/home/automation-finder";
 import FinalCta from "@/components/home/final-cta";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <>

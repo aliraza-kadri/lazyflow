@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "LazyFlow is a business automation studio built on one idea: understand the business first, then design the automation.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const values = [
   {
     title: "Understand before we build",

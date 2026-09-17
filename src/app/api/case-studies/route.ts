@@ -1,21 +1,36 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getCaseStudies, saveCaseStudy, saveCaseStudies } from "@/lib/db";
+import { getDb } from "@/lib/mongodb";
 import type { CaseStudy } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   const list = await getCaseStudies();
-  return NextResponse.json(list);
+  return NextResponse.json(list, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+    },
+  });
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const db = await getDb();
+
     if (Array.isArray(body)) {
       const updated = await saveCaseStudies(body);
-      return NextResponse.json(updated);
+      try {
+        revalidatePath("/", "layout");
+      } catch {}
+      return NextResponse.json(updated, {
+        headers: { "Cache-Control": "no-store, max-age=0" },
+      });
     }
+
     const newCaseStudy: CaseStudy = {
       id: body.id || `cs_${Date.now()}`,
       title: body.title || "",
@@ -29,8 +44,26 @@ export async function POST(request: Request) {
       createdAt: body.createdAt || new Date().toISOString(),
     };
     const saved = await saveCaseStudy(newCaseStudy);
-    return NextResponse.json(saved, { status: 201 });
-  } catch {
+
+    try {
+      revalidatePath("/", "layout");
+    } catch {}
+
+    return NextResponse.json(
+      {
+        ...saved,
+        persistedInDb: !!db,
+        warning: !db
+          ? "Database not connected. Changes saved to temporary RAM only. Add MONGODB_URI to Vercel settings."
+          : undefined,
+      },
+      {
+        status: 201,
+        headers: { "Cache-Control": "no-store, max-age=0" },
+      }
+    );
+  } catch (error) {
+    console.error("Save case study error:", error);
     return NextResponse.json({ error: "Failed to save case study" }, { status: 500 });
   }
 }

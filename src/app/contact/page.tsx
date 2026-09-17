@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: "Tell LazyFlow about your business and what's slowing it down.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function ContactPage() {
   const settings = await getSettings();
   const contactEmail = settings.email || siteConfig.email;

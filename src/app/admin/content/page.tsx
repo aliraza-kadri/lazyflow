@@ -13,9 +13,10 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [warningMsg, setWarningMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/content")
+    fetch("/api/content", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data && typeof data === "object") {
@@ -31,6 +32,7 @@ export default function AdminContentPage() {
 
   async function handleSave() {
     setSaving(true);
+    setWarningMsg(null);
     const whatsappNumber = content.contactWhatsapp.replace(/\D/g, "");
 
     const res = await fetch("/api/content", {
@@ -53,9 +55,13 @@ export default function AdminContentPage() {
 
     setSaving(false);
     if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (data.warning) {
+        setWarningMsg(data.warning);
+      }
       window.localStorage.setItem(WHATSAPP_NUMBER_STORAGE_KEY, whatsappNumber);
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => setSaved(false), 3000);
     }
   }
 
@@ -120,9 +126,16 @@ export default function AdminContentPage() {
           </div>
         </Panel>
 
-        <div className="flex items-center gap-3">
-          <Button onClick={handleSave}>{saving ? "Saving..." : "Save Changes"}</Button>
-          {saved && <span className="text-sm font-medium text-lf-accent-2">Saved ✓</span>}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <Button onClick={handleSave}>{saving ? "Saving..." : "Save Changes"}</Button>
+            {saved && !warningMsg && <span className="text-sm font-medium text-emerald-500">Saved to MongoDB ✓</span>}
+          </div>
+          {warningMsg && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-500">
+              ⚠️ {warningMsg}
+            </div>
+          )}
         </div>
       </div>
     </>

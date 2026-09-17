@@ -26,7 +26,7 @@ export default function AdminCaseStudiesPage() {
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    fetch("/api/case-studies")
+    fetch("/api/case-studies", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setItems(data);

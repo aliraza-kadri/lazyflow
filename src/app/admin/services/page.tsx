@@ -22,7 +22,7 @@ export default function AdminServicesPage() {
   const [form, setForm] = useState<Omit<Service, "id">>(emptyService);
 
   useEffect(() => {
-    fetch("/api/services")
+    fetch("/api/services", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setServices(data);
