@@ -70,6 +70,23 @@ export default function AdminTopbar({
           <div className="flex h-9 w-9 items-center justify-center rounded-full lf-gradient-bg text-xs font-semibold text-white">
             LF
           </div>
+
+          <button
+            onClick={async () => {
+              if (confirm("Are you sure you want to log out?")) {
+                await fetch("/api/auth/logout", { method: "POST" });
+                window.location.href = "/admin/login";
+              }
+            }}
+            title="Log out of Admin"
+            className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full border border-lf-border text-lf-muted hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-500 transition-colors"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
           <button
             onClick={() => setOpen(true)}
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-lf-border md:hidden"

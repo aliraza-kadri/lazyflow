@@ -15,6 +15,12 @@ export default function AdminSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [warningMsg, setWarningMsg] = useState<string | null>(null);
 
+  // Change Password state
+  const [currPassword, setCurrPassword] = useState("");
+  const [nextPassword, setNextPassword] = useState("");
+  const [pwMsg, setPwMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [changingPw, setChangingPw] = useState(false);
+
   useEffect(() => {
     fetch("/api/settings", { cache: "no-store" })
       .then((res) => res.json())
@@ -61,6 +67,31 @@ export default function AdminSettingsPage() {
       window.localStorage.setItem(WHATSAPP_NUMBER_STORAGE_KEY, whatsappNumber);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    setPwMsg(null);
+    setChangingPw(true);
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: currPassword, newPassword: nextPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwMsg({ type: "error", text: data.error || "Failed to change password." });
+      } else {
+        setPwMsg({ type: "success", text: "Password changed successfully!" });
+        setCurrPassword("");
+        setNextPassword("");
+      }
+    } catch {
+      setPwMsg({ type: "error", text: "Network error." });
+    } finally {
+      setChangingPw(false);
     }
   }
 
@@ -147,6 +178,52 @@ export default function AdminSettingsPage() {
             </div>
           )}
         </div>
+
+        {/* Change Admin Password Section */}
+        <Panel title="Admin Security & Password">
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <p className="text-xs text-lf-muted leading-relaxed">
+              Update the master admin password used to sign in to this portal:
+            </p>
+
+            {pwMsg && (
+              <div
+                className={`rounded-xl border p-3 text-xs ${
+                  pwMsg.type === "success"
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-medium"
+                    : "border-red-500/30 bg-red-500/10 text-red-500"
+                }`}
+              >
+                {pwMsg.text}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Current Password">
+                <TextInput
+                  type="password"
+                  value={currPassword}
+                  onChange={(e) => setCurrPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  required
+                />
+              </Field>
+              <Field label="New Password" hint="At least 6 characters">
+                <TextInput
+                  type="password"
+                  value={nextPassword}
+                  onChange={(e) => setNextPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  required
+                />
+              </Field>
+            </div>
+
+            <Button type="submit" disabled={changingPw || !currPassword || !nextPassword}>
+              {changingPw ? "Updating Password..." : "Update Admin Password"}
+            </Button>
+          </form>
+        </Panel>
       </div>
     </>
   );
