@@ -1,7 +1,11 @@
 import { getDb } from "./mongodb";
 
-export const SESSION_COOKIE_NAME = "lf_admin_session";
-export const SESSION_DURATION_SECONDS = 30 * 24 * 60 * 60; // 30 days
+export {
+  SESSION_COOKIE_NAME,
+  SESSION_DURATION_SECONDS,
+  createSessionToken,
+  verifySessionToken,
+} from "./session";
 
 const AUTH_SECRET = process.env.ADMIN_SESSION_SECRET || "lazyflow-auth-secret-key-prod-2026-secure";
 export const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@lazyflow.in";
@@ -53,10 +57,6 @@ export async function verifyPassword(
   return hash === storedHash;
 }
 
-// ============================================================================
-// Web Crypto Signed Session Tokens
-// Format: base64(userId:timestamp:signature)
-// ============================================================================
 async function getSigningKey() {
   const enc = new TextEncoder();
   return crypto.subtle.importKey(
@@ -66,55 +66,6 @@ async function getSigningKey() {
     false,
     ["sign", "verify"]
   );
-}
-
-export async function createSessionToken(userId: string): Promise<string> {
-  const expiry = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
-  const payload = `${userId}:${expiry}`;
-  const enc = new TextEncoder();
-
-  const key = await getSigningKey();
-  const sigBuffer = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
-  const sig = Array.from(new Uint8Array(sigBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-
-  return Buffer.from(`${payload}:${sig}`).toString("base64url");
-}
-
-export async function verifySessionToken(
-  token: string
-): Promise<{ valid: boolean; userId?: string }> {
-  try {
-    if (!token) return { valid: false };
-    const decoded = Buffer.from(token, "base64url").toString("utf-8");
-    const parts = decoded.split(":");
-    if (parts.length !== 3) return { valid: false };
-
-    const [userId, expiryStr, sig] = parts;
-    const expiry = parseInt(expiryStr, 10);
-    const now = Math.floor(Date.now() / 1000);
-
-    if (isNaN(expiry) || now > expiry) {
-      return { valid: false };
-    }
-
-    const payload = `${userId}:${expiryStr}`;
-    const enc = new TextEncoder();
-    const key = await getSigningKey();
-    const sigBuffer = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
-    const expectedSig = Array.from(new Uint8Array(sigBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    if (sig !== expectedSig) {
-      return { valid: false };
-    }
-
-    return { valid: true, userId };
-  } catch {
-    return { valid: false };
-  }
 }
 
 // ============================================================================
