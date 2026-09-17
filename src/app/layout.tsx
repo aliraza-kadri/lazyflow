@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico" },
-      { url: "/logo/lazyflow-icon.png", type: "image/png" },
+      { url: "/favicon.png", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
-    apple: "/logo/lazyflow-icon.png",
+    apple: "/favicon.png",
   },
   keywords: [
     "business automation",
