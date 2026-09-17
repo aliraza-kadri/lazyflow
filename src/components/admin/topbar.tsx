@@ -75,7 +75,7 @@ export default function AdminTopbar({
             className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-lf-surface transition-all group"
           >
             <Image
-              src="/logo/lazyflow-symbol.png"
+              src="/logo/lazyflow-icon.png"
               alt="LazyFlow Logo"
               width={36}
               height={36}

@@ -13,7 +13,13 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+      { url: "/logo/lazyflow-icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/logo/lazyflow-icon.png",
   },
   keywords: [
     "business automation",
