@@ -9,6 +9,7 @@ export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [successResult, setSuccessResult] = useState<{
     sent: boolean;
     email: string;
@@ -44,7 +45,7 @@ export default function AdminForgotPasswordPage() {
       }
 
       setSuccessResult({
-        sent: data.sentEmail,
+        sent: Boolean(data.sentEmail),
         email: data.email,
         message: data.message,
         fallbackUrl: data.fallbackResetUrl,
@@ -116,6 +117,38 @@ export default function AdminForgotPasswordPage() {
 
         {/* Card */}
         <div className="overflow-hidden rounded-3xl border border-lf-border/90 bg-lf-card/90 p-7 shadow-2xl shadow-black/25 backdrop-blur-xl sm:p-9">
+          {/* Mode Switch Tabs */}
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-2xl border border-lf-border bg-lf-surface/80 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setMode("email");
+              }}
+              className={`rounded-xl py-2 text-xs font-semibold transition-all ${
+                mode === "email"
+                  ? "lf-gradient-bg text-white shadow-md shadow-lf-accent/20"
+                  : "text-lf-muted hover:text-lf-ink"
+              }`}
+            >
+              ✉️ Email Reset Link
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setMode("pin");
+              }}
+              className={`rounded-xl py-2 text-xs font-semibold transition-all ${
+                mode === "pin"
+                  ? "lf-gradient-bg text-white shadow-md shadow-lf-accent/20"
+                  : "text-lf-muted hover:text-lf-ink"
+              }`}
+            >
+              🔑 Master PIN Reset
+            </button>
+          </div>
+
           {mode === "email" ? (
             <>
               {/* Instagram/Facebook Style Email Flow */}
@@ -127,13 +160,13 @@ export default function AdminForgotPasswordPage() {
                 </div>
                 <h1 className="text-2xl font-bold tracking-tight text-lf-ink">Trouble Logging In?</h1>
                 <p className="mt-1.5 text-xs text-lf-muted leading-relaxed">
-                  Enter your registered admin email address and we&apos;ll send you a secure link to reset your password.
+                  Enter your registered admin email or username to generate a secure reset link.
                 </p>
               </div>
 
               {error && (
-                <div className="mb-5 flex items-center gap-2.5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs text-red-500">
-                  <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <div className="mb-5 flex items-start gap-2.5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs text-red-500 leading-relaxed">
+                  <svg className="h-4 w-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <span>{error}</span>
@@ -142,24 +175,60 @@ export default function AdminForgotPasswordPage() {
 
               {successResult ? (
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-600 leading-relaxed">
-                    <p className="font-semibold text-sm mb-1 text-emerald-700">Check your inbox!</p>
-                    <p>
-                      We have generated a password reset link for <strong className="text-emerald-800">{successResult.email}</strong>.
-                    </p>
-                  </div>
+                  {successResult.sent ? (
+                    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-600 leading-relaxed">
+                      <p className="font-semibold text-sm mb-1 text-emerald-700">✉️ Email Sent Successfully!</p>
+                      <p>
+                        A password reset link has been dispatched to <strong className="text-emerald-800">{successResult.email}</strong>. Please check your inbox and Spam folder.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-500 leading-relaxed">
+                      <p className="font-semibold text-sm mb-1 text-amber-600">⚡ Reset Link Ready!</p>
+                      <p className="text-[12px] text-amber-700">
+                        Vercel par abhi real email credentials (Gmail ya Resend) add nahi hain, isliye seedha neeche click karke apna password turant badal sakte hain:
+                      </p>
+                    </div>
+                  )}
 
                   {successResult.fallbackUrl && (
-                    <div className="rounded-2xl border border-lf-border bg-lf-surface p-4 text-xs space-y-2">
-                      <p className="text-lf-muted">
-                        <strong>Instant Access Link:</strong> Click below to reset now:
-                      </p>
+                    <div className="rounded-2xl border border-lf-border bg-lf-surface p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-lf-ink">
+                          Direct Reset Access
+                        </span>
+                        <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          Valid 30 Mins
+                        </span>
+                      </div>
+                      
                       <a
                         href={successResult.fallbackUrl}
-                        className="inline-block rounded-xl lf-gradient-bg px-4 py-2 font-semibold text-white text-xs shadow-sm hover:opacity-90"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl lf-gradient-bg py-3 px-4 text-sm font-bold text-white shadow-lg shadow-lf-accent/25 hover:opacity-95 active:scale-[0.99] transition-all"
                       >
-                        Open Password Reset Page →
+                        👉 Click Here to Reset Password Now 👈
                       </a>
+
+                      <div className="flex items-center gap-1.5 pt-1">
+                        <input
+                          readOnly
+                          value={successResult.fallbackUrl}
+                          className="flex-1 rounded-lg border border-lf-border bg-lf-card px-3 py-1.5 text-[11px] font-mono text-lf-muted truncate select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (successResult.fallbackUrl) {
+                              navigator.clipboard.writeText(successResult.fallbackUrl);
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2500);
+                            }
+                          }}
+                          className="shrink-0 rounded-lg border border-lf-border bg-lf-card px-3 py-1.5 text-xs font-semibold text-lf-ink hover:bg-lf-surface transition-colors"
+                        >
+                          {copied ? "✓ Copied!" : "Copy"}
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -168,7 +237,7 @@ export default function AdminForgotPasswordPage() {
                       setSuccessResult(null);
                       setEmail("");
                     }}
-                    className="w-full text-center text-xs text-lf-muted hover:text-lf-ink underline pt-2"
+                    className="w-full text-center text-xs text-lf-muted hover:text-lf-ink underline pt-1"
                   >
                     Try another email address
                   </button>
@@ -177,16 +246,19 @@ export default function AdminForgotPasswordPage() {
                 <form onSubmit={handleSendEmail} className="space-y-4">
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-lf-muted">
-                      Admin Email Address
+                      Admin Email or Username
                     </label>
                     <input
-                      type="email"
+                      type="text"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@lazyflow.in"
+                      placeholder="admin@lazyflow.in or admin"
                       className="w-full rounded-xl border border-lf-border bg-lf-surface px-4 py-3 text-sm text-lf-ink placeholder:text-lf-muted/50 focus:border-lf-accent focus:outline-none focus:ring-1 focus:ring-lf-accent transition-all"
                     />
+                    <p className="mt-1 text-[11px] text-lf-muted">
+                      Default: <code className="font-mono text-lf-ink">admin@lazyflow.in</code> (or simply enter <code className="font-mono text-lf-ink">admin</code>)
+                    </p>
                   </div>
 
                   <button
@@ -197,28 +269,14 @@ export default function AdminForgotPasswordPage() {
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        Sending Reset Link...
+                        Generating Reset Link...
                       </>
                     ) : (
-                      "Send Reset Link"
+                      "Generate Reset Link"
                     )}
                   </button>
                 </form>
               )}
-
-              {/* Toggle to Master Recovery PIN */}
-              <div className="mt-6 border-t border-lf-border/70 pt-5 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setError(null);
-                    setMode("pin");
-                  }}
-                  className="text-xs text-lf-muted hover:text-lf-accent transition-colors"
-                >
-                  Or reset with Master Security PIN →
-                </button>
-              </div>
             </>
           ) : (
             <>

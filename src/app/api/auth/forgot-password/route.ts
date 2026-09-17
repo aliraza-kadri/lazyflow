@@ -26,7 +26,9 @@ export async function POST(request: Request) {
 
     if (!matches) {
       return NextResponse.json(
-        { error: "No admin account found matching this email address." },
+        {
+          error: `No account found matching "${inputEmail}". Current admin email is "${admin.email}" (or username "${admin.username || "admin"}"). You can also use the Master Recovery PIN tab.`,
+        },
         { status: 404 }
       );
     }
@@ -54,11 +56,12 @@ export async function POST(request: Request) {
       email: admin.email,
       sentEmail: emailResult.sent,
       provider: emailResult.provider,
-      // Provide reset link as fallback if email sending is not yet configured on Vercel
-      fallbackResetUrl: !emailResult.sent ? resetUrl : undefined,
+      errorDetail: emailResult.error,
+      // Always provide reset link so the user is never blocked
+      fallbackResetUrl: resetUrl,
       message: emailResult.sent
         ? `A password reset link has been sent to ${admin.email}. Please check your inbox!`
-        : `Password reset link generated!`,
+        : `Reset link generated successfully! (Email service not configured in Vercel, use direct link below)`,
     });
   } catch (error) {
     console.error("Forgot password error:", error);

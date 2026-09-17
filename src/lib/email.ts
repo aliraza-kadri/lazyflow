@@ -82,32 +82,42 @@ export async function sendPasswordResetEmail({
 
   // 2. Try Nodemailer if SMTP/Gmail credentials are configured
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const smtpPass = rawPass ? rawPass.replace(/\s+/g, "") : "";
 
   if (smtpUser && smtpPass) {
     try {
-      const host = process.env.SMTP_HOST || "smtp.gmail.com";
-      const port = parseInt(process.env.SMTP_PORT || "465", 10);
-      const secure = port === 465;
+      const host = process.env.SMTP_HOST;
+      const isGmail = !host || host.toLowerCase().includes("gmail");
 
-      const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+      const transporter = nodemailer.createTransport(
+        isGmail
+          ? {
+              service: "gmail",
+              auth: {
+                user: smtpUser,
+                pass: smtpPass,
+              },
+            }
+          : {
+              host: host || "smtp.gmail.com",
+              port: parseInt(process.env.SMTP_PORT || "587", 10),
+              secure: process.env.SMTP_PORT === "465",
+              auth: {
+                user: smtpUser,
+                pass: smtpPass,
+              },
+            }
+      );
 
       await transporter.sendMail({
-        from: `"LazyFlow Admin" <${smtpUser}>`,
+        from: `"LazyFlow Security" <${smtpUser}>`,
         to,
         subject: "Reset Your LazyFlow Admin Password",
         html: htmlContent,
       });
 
-      return { sent: true, provider: "smtp" };
+      return { sent: true, provider: isGmail ? "gmail" : "smtp" };
     } catch (err) {
       console.warn("SMTP email error:", err);
       return { sent: false, error: String(err) };
@@ -117,6 +127,6 @@ export async function sendPasswordResetEmail({
   // If no email service is configured yet
   return {
     sent: false,
-    error: "No email service configured (Add RESEND_API_KEY or SMTP_USER/SMTP_PASS in Vercel settings).",
+    error: "No email service configured (Add GMAIL_USER/GMAIL_APP_PASSWORD or RESEND_API_KEY in Vercel settings).",
   };
 }
