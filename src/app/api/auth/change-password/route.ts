@@ -1,13 +1,41 @@
 import { NextResponse } from "next/server";
 import {
   getOrCreateAdminUser,
+  getAdminProfile,
   verifyPassword,
-  updateAdminPassword,
+  updateAdminCredentials,
   verifySessionToken,
   SESSION_COOKIE_NAME,
 } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  try {
+    const cookieHeader = request.headers.get("cookie") || "";
+    const cookies = Object.fromEntries(
+      cookieHeader.split(";").map((c) => {
+        const [k, ...v] = c.trim().split("=");
+        return [k, v.join("=")];
+      })
+    );
+    const token = cookies[SESSION_COOKIE_NAME];
+    const { valid } = await verifySessionToken(token);
+
+    if (!valid) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const profile = await getAdminProfile();
+    return NextResponse.json({
+      email: profile.email,
+      username: profile.username,
+      recoveryPin: profile.recoveryPin,
+    });
+  } catch {
+    return NextResponse.json({ error: "Failed to load admin profile" }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -32,15 +60,18 @@ export async function POST(request: Request) {
     const body = await request.json();
     const currentPassword = (body.currentPassword || "").trim();
     const newPassword = (body.newPassword || "").trim();
+    const newUsername = (body.newUsername || "").trim();
+    const newEmail = (body.newEmail || "").trim();
+    const newRecoveryPin = (body.newRecoveryPin || "").trim();
 
-    if (!currentPassword || !newPassword) {
+    if (!currentPassword) {
       return NextResponse.json(
-        { error: "Both current password and new password are required." },
+        { error: "Current password is required to save security changes." },
         { status: 400 }
       );
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword && newPassword.length < 6) {
       return NextResponse.json(
         { error: "New password must be at least 6 characters long." },
         { status: 400 }
@@ -56,16 +87,21 @@ export async function POST(request: Request) {
       );
     }
 
-    await updateAdminPassword(newPassword);
+    await updateAdminCredentials({
+      newPassword: newPassword || undefined,
+      newEmail: newEmail || undefined,
+      newUsername: newUsername || undefined,
+      newRecoveryPin: newRecoveryPin || undefined,
+    });
 
     return NextResponse.json({
       success: true,
-      message: "Password changed successfully.",
+      message: "Admin security details updated successfully.",
     });
   } catch (error) {
-    console.error("Change password error:", error);
+    console.error("Change credentials error:", error);
     return NextResponse.json(
-      { error: "Failed to change password." },
+      { error: "Failed to update security credentials." },
       { status: 500 }
     );
   }

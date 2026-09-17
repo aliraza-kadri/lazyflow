@@ -15,7 +15,10 @@ export default function AdminSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [warningMsg, setWarningMsg] = useState<string | null>(null);
 
-  // Change Password state
+  // Admin Account & Security state
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPin, setAdminPin] = useState("");
   const [currPassword, setCurrPassword] = useState("");
   const [nextPassword, setNextPassword] = useState("");
   const [pwMsg, setPwMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -30,6 +33,17 @@ export default function AdminSettingsPage() {
         }
       })
       .finally(() => setLoading(false));
+
+    fetch("/api/auth/change-password", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          if (data.email) setAdminEmail(data.email);
+          if (data.username) setAdminUsername(data.username);
+          if (data.recoveryPin) setAdminPin(data.recoveryPin);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   function update<K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) {
@@ -78,18 +92,24 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword: currPassword, newPassword: nextPassword }),
+        body: JSON.stringify({
+          currentPassword: currPassword,
+          newPassword: nextPassword || undefined,
+          newEmail: adminEmail || undefined,
+          newUsername: adminUsername || undefined,
+          newRecoveryPin: adminPin || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setPwMsg({ type: "error", text: data.error || "Failed to change password." });
+        setPwMsg({ type: "error", text: data.error || "Failed to update security credentials." });
       } else {
-        setPwMsg({ type: "success", text: "Password changed successfully!" });
+        setPwMsg({ type: "success", text: "Security credentials updated successfully!" });
         setCurrPassword("");
         setNextPassword("");
       }
     } catch {
-      setPwMsg({ type: "error", text: "Network error." });
+      setPwMsg({ type: "error", text: "Network error. Please try again." });
     } finally {
       setChangingPw(false);
     }
@@ -179,16 +199,16 @@ export default function AdminSettingsPage() {
           )}
         </div>
 
-        {/* Change Admin Password Section */}
-        <Panel title="Admin Security & Password">
+        {/* Change Admin Account & Security Section */}
+        <Panel title="Admin Account & Security">
           <form onSubmit={handleChangePassword} className="space-y-4">
             <p className="text-xs text-lf-muted leading-relaxed">
-              Update the master admin password used to sign in to this portal:
+              Update your Admin login ID, Username, Master Recovery PIN, and Password:
             </p>
 
             {pwMsg && (
               <div
-                className={`rounded-xl border p-3 text-xs ${
+                className={`rounded-xl border p-3.5 text-xs ${
                   pwMsg.type === "success"
                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-medium"
                     : "border-red-500/30 bg-red-500/10 text-red-500"
@@ -199,7 +219,45 @@ export default function AdminSettingsPage() {
             )}
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Current Password">
+              <Field label="Admin Email / Login ID" hint="Used to sign in">
+                <TextInput
+                  type="email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@lazyflow.in"
+                />
+              </Field>
+              <Field label="Admin Username" hint="Alternative sign-in identifier">
+                <TextInput
+                  type="text"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  placeholder="admin"
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Master Recovery PIN" hint="Used to reset password if forgotten (Default: 892410)">
+                <TextInput
+                  type="text"
+                  value={adminPin}
+                  onChange={(e) => setAdminPin(e.target.value)}
+                  placeholder="e.g. 892410"
+                />
+              </Field>
+              <Field label="New Password" hint="Leave blank to keep current password">
+                <TextInput
+                  type="password"
+                  value={nextPassword}
+                  onChange={(e) => setNextPassword(e.target.value)}
+                  placeholder="Leave blank or enter new password"
+                />
+              </Field>
+            </div>
+
+            <div className="max-w-md pt-1">
+              <Field label="Current Password" hint="Required to authorize any security updates">
                 <TextInput
                   type="password"
                   value={currPassword}
@@ -208,19 +266,10 @@ export default function AdminSettingsPage() {
                   required
                 />
               </Field>
-              <Field label="New Password" hint="At least 6 characters">
-                <TextInput
-                  type="password"
-                  value={nextPassword}
-                  onChange={(e) => setNextPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  required
-                />
-              </Field>
             </div>
 
-            <Button type="submit" disabled={changingPw || !currPassword || !nextPassword}>
-              {changingPw ? "Updating Password..." : "Update Admin Password"}
+            <Button type="submit" disabled={changingPw || !currPassword}>
+              {changingPw ? "Updating Credentials..." : "Save Security Credentials"}
             </Button>
           </form>
         </Panel>

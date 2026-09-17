@@ -8,6 +8,7 @@ import { LogoHorizontal } from "@/components/ui/logo";
 export default function AdminForgotPasswordPage() {
   const router = useRouter();
   const [recoveryPin, setRecoveryPin] = useState("");
+  const [newIdentifier, setNewIdentifier] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ export default function AdminForgotPasswordPage() {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recoveryPin, newPassword }),
+        body: JSON.stringify({ recoveryPin, newPassword, newIdentifier }),
       });
 
       const data = await res.json();
@@ -113,6 +114,19 @@ export default function AdminForgotPasswordPage() {
               <p className="mt-1 text-[11px] text-lf-muted">
                 Default recovery key: <code className="font-mono text-lf-ink">892410</code> (changeable in Vercel env <code className="font-mono text-lf-ink">ADMIN_RECOVERY_KEY</code>)
               </p>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-lf-muted">
+                New Admin Username / Email <span className="text-lf-muted/60 normal-case">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={newIdentifier}
+                onChange={(e) => setNewIdentifier(e.target.value)}
+                placeholder="Leave blank to keep current, or enter new username/email"
+                className="w-full rounded-xl border border-lf-border bg-lf-surface px-4 py-3 text-sm text-lf-ink placeholder:text-lf-muted/50 focus:border-lf-accent focus:outline-none focus:ring-1 focus:ring-lf-accent transition-all"
+              />
             </div>
 
             <div>

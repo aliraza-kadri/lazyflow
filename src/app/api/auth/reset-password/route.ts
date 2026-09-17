@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   verifyRecoveryPin,
-  updateAdminPassword,
+  updateAdminCredentials,
   createSessionToken,
   getOrCreateAdminUser,
   SESSION_COOKIE_NAME,
@@ -38,8 +38,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update password
-    await updateAdminPassword(newPassword);
+    // Update password and optional new username/email
+    const newIdentifier = (body.newIdentifier || body.newUsername || body.newEmail || "").trim();
+    const updateParams: { newPassword: string; newEmail?: string; newUsername?: string } = {
+      newPassword,
+    };
+    if (newIdentifier) {
+      if (newIdentifier.includes("@")) {
+        updateParams.newEmail = newIdentifier;
+      } else {
+        updateParams.newUsername = newIdentifier;
+      }
+    }
+    await updateAdminCredentials(updateParams);
 
     const admin = await getOrCreateAdminUser();
     const token = await createSessionToken(admin.id);

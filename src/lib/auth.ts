@@ -168,27 +168,62 @@ export async function getOrCreateAdminUser(): Promise<AdminUser> {
   return newUser;
 }
 
-export async function updateAdminPassword(newPassword: string): Promise<boolean> {
-  const { hash, salt } = await hashPassword(newPassword);
-  const updatedAt = new Date().toISOString();
+export async function updateAdminCredentials(params: {
+  newPassword?: string;
+  newEmail?: string;
+  newUsername?: string;
+  newRecoveryPin?: string;
+}): Promise<boolean> {
+  const updateDoc: Record<string, unknown> = {
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (params.newPassword) {
+    const { hash, salt } = await hashPassword(params.newPassword);
+    updateDoc.passwordHash = hash;
+    updateDoc.salt = salt;
+  }
+
+  if (params.newEmail) {
+    updateDoc.email = params.newEmail.trim().toLowerCase();
+  }
+
+  if (params.newUsername) {
+    updateDoc.username = params.newUsername.trim().toLowerCase();
+  }
+
+  if (params.newRecoveryPin) {
+    updateDoc.recoveryPin = params.newRecoveryPin.trim();
+  }
 
   const db = await getDb();
   if (!db) {
     if (fallbackAdminUser) {
-      fallbackAdminUser.passwordHash = hash;
-      fallbackAdminUser.salt = salt;
-      fallbackAdminUser.updatedAt = updatedAt;
+      Object.assign(fallbackAdminUser, updateDoc);
     }
     return true;
   }
 
   await db.collection("admin_users").updateOne(
     { id: "admin_root" },
-    { $set: { passwordHash: hash, salt, updatedAt } },
+    { $set: updateDoc },
     { upsert: true }
   );
 
   return true;
+}
+
+export async function updateAdminPassword(newPassword: string): Promise<boolean> {
+  return updateAdminCredentials({ newPassword });
+}
+
+export async function getAdminProfile(): Promise<{ email: string; username: string; recoveryPin: string }> {
+  const user = await getOrCreateAdminUser();
+  return {
+    email: user.email,
+    username: user.username || "admin",
+    recoveryPin: user.recoveryPin || DEFAULT_RECOVERY_PIN,
+  };
 }
 
 export async function verifyRecoveryPin(pin: string): Promise<boolean> {
