@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/layout/page-header";
 import { Section, SectionHeading, Card } from "@/components/ui/section";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
-import { whatsappMessages } from "@/lib/whatsapp";
-import { getServices } from "@/lib/db";
+import { whatsappMessages, buildWhatsAppLink } from "@/lib/whatsapp";
+import { getServices, getSettings } from "@/lib/db";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -54,8 +55,12 @@ const detail: Record<string, string[]> = {
 };
 
 export default async function ServicesPage() {
-  const allServices = await getServices();
+  const [allServices, settings] = await Promise.all([
+    getServices(),
+    getSettings(),
+  ]);
   const activeServices = allServices.filter((s) => s.active);
+  const whatsappNumber = (settings?.whatsappNumber || siteConfig.whatsappNumber).replace(/\D/g, "");
 
   return (
     <>
@@ -68,26 +73,42 @@ export default async function ServicesPage() {
       <Section className="py-24 md:py-28">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {activeServices.map((s) => (
-            <Card key={s.id} className="flex flex-col">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-lf-ink">{s.title}</h3>
-                {s.category && (
-                  <span className="rounded-full bg-lf-accent-soft px-2.5 py-1 text-[11px] font-semibold text-lf-accent">
-                    {s.category}
-                  </span>
+            <Card key={s.id} className="group flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-lf-ink">{s.title}</h3>
+                  {s.category && (
+                    <span className="rounded-full bg-lf-accent-soft px-2.5 py-1 text-[11px] font-semibold text-lf-accent">
+                      {s.category}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-lf-muted">{s.description}</p>
+                {detail[s.title] && (
+                  <ul className="mt-5 flex flex-col gap-2.5 border-t border-lf-border pt-5">
+                    {detail[s.title].map((item) => (
+                      <li key={item} className="flex items-start gap-2.5 text-sm text-lf-ink/80">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full lf-gradient-bg" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-lf-muted">{s.description}</p>
-              {detail[s.title] && (
-                <ul className="mt-5 flex flex-col gap-2.5 border-t border-lf-border pt-5">
-                  {detail[s.title].map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-sm text-lf-ink/80">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full lf-gradient-bg" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="mt-6 border-t border-lf-border/50 pt-5">
+                <a
+                  href={buildWhatsAppLink(
+                    `Hi LazyFlow, I'd like to discuss ${s.title.toLowerCase()} for my business.`,
+                    whatsappNumber
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-lf-accent"
+                >
+                  Discuss {s.title}
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </a>
+              </div>
             </Card>
           ))}
         </div>

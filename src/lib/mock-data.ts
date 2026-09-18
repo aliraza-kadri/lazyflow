@@ -23,9 +23,9 @@ export const mockLeads: Lead[] = [
   {
     id: "ld_002",
     name: "Ayesha Khan",
-    business: "Glow Studio Salon",
+    business: "Glow Salon",
     phone: "+91 90210 44556",
-    email: "ayesha@glowstudio.in",
+    email: "ayesha@glowsalon.in",
     industry: "Salons",
     problem: "Too many no-shows for appointments.",
     process: "Calling every client a day before their appointment",
@@ -220,17 +220,17 @@ export const mockWebsiteContent = {
   ctaSecondaryText: "Talk to Us",
   aboutText:
     "LazyFlow began with a simple observation: most businesses don't need more software — they need someone to actually look at how they work and fix what's repetitive, manual or broken.",
-  contactEmail: "hello@lazyflow.in",
-  contactWhatsapp: "919999999999",
-  instagramUrl: "https://instagram.com/lazyflow.in",
-  linkedinUrl: "https://linkedin.com/company/lazyflow-in",
+  contactEmail: "hello.lazyflow@gmail.com",
+  contactWhatsapp: "917016647163",
+  instagramUrl: "https://www.instagram.com/lazyflow.in?stkn=MThhMXRhaG5naHY3eg==",
+  linkedinUrl: "https://www.linkedin.com/company/lazyflow-ai/",
 };
 
 export const mockSettings = {
-  whatsappNumber: "919999999999",
-  email: "hello@lazyflow.in",
-  instagram: "https://instagram.com/lazyflow.in",
-  linkedin: "https://linkedin.com/company/lazyflow-in",
+  whatsappNumber: "917016647163",
+  email: "hello.lazyflow@gmail.com",
+  instagram: "https://www.instagram.com/lazyflow.in?stkn=MThhMXRhaG5naHY3eg==",
+  linkedin: "https://www.linkedin.com/company/lazyflow-ai/",
   metaTitle: "LazyFlow — Business Automation",
   metaDescription:
     "LazyFlow helps businesses identify repetitive work, remove bottlenecks and build custom automation.",

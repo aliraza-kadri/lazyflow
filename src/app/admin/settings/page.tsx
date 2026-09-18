@@ -131,7 +131,7 @@ export default function AdminSettingsPage() {
       <div className="flex-1 space-y-6 p-5 md:p-8">
         <Panel title="Contact & Communication">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="WhatsApp Number" hint="Digits only, e.g. 919999999999">
+            <Field label="WhatsApp Number" hint="Digits only, e.g. 917016647163">
               <TextInput value={settings.whatsappNumber} onChange={(e) => update("whatsappNumber", e.target.value)} />
             </Field>
             <Field label="Email">

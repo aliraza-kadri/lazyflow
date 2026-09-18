@@ -21,7 +21,7 @@ export default async function Hero() {
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-lf-border bg-lf-nav px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-lf-muted">
             <span className="h-1.5 w-1.5 rounded-full lf-gradient-bg" />
-            Business Automation Studio
+            Business Automation Solutions
           </div>
 
           <h1 className="mt-7 text-4xl font-bold leading-[1.08] tracking-tight text-lf-ink md:text-6xl whitespace-pre-line">

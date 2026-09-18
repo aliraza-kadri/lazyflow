@@ -23,7 +23,7 @@ export async function sendPasswordResetEmail({
           
           <div style="text-align: center; margin-bottom: 28px;">
             <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">LazyFlow</h1>
-            <p style="color: #9ca3af; font-size: 12px; font-weight: 600; text-transform: uppercase; tracking: 1px; margin-top: 4px;">Business Automation Studio</p>
+            <p style="color: #9ca3af; font-size: 12px; font-weight: 600; text-transform: uppercase; tracking: 1px; margin-top: 4px;">Business Automation</p>
           </div>
 
           <div style="background-color: #1f2937; height: 1px; margin-bottom: 28px;"></div>

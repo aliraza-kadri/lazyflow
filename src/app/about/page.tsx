@@ -8,7 +8,7 @@ import { getContent } from "@/lib/db";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "LazyFlow is a business automation studio built on one idea: understand the business first, then design the automation.",
+    "LazyFlow is a business automation partner built on one idea: understand the business first, then design the automation.",
 };
 
 export const dynamic = "force-dynamic";

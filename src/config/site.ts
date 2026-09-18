@@ -13,13 +13,13 @@ export const siteConfig = {
 
   // ⚠️ Change this number to update EVERY WhatsApp button on the site.
   // Use full international format, digits only (no +, spaces or dashes).
-  whatsappNumber: "919999999999",
+  whatsappNumber: "917016647163",
 
-  email: "hello@lazyflow.in",
+  email: "hello.lazyflow@gmail.com",
 
   social: {
-    instagram: "https://instagram.com/lazyflow.in",
-    linkedin: "https://linkedin.com/company/lazyflow-in",
+    instagram: "https://www.instagram.com/lazyflow.in?stkn=MThhMXRhaG5naHY3eg==",
+    linkedin: "https://www.linkedin.com/company/lazyflow-ai/",
   },
 
   nav: [

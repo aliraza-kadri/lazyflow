@@ -5,13 +5,22 @@ import { solutions } from "@/lib/content";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages, buildWhatsAppLink } from "@/lib/whatsapp";
 
+import { getSettings } from "@/lib/db";
+import { siteConfig } from "@/config/site";
+
 export const metadata: Metadata = {
   title: "Solutions",
   description:
     "Automation solutions across retail, garments, restaurants, salons, clinics, real estate, e-commerce and service businesses.",
 };
 
-export default function SolutionsPage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function SolutionsPage() {
+  const settings = await getSettings();
+  const whatsappNumber = (settings?.whatsappNumber || siteConfig.whatsappNumber).replace(/\D/g, "");
+
   return (
     <>
       <PageHeader
@@ -33,7 +42,8 @@ export default function SolutionsPage() {
               </div>
               <a
                 href={buildWhatsAppLink(
-                  `Hi LazyFlow, I run a ${s.title.toLowerCase()} business and want to explore automation for it.`
+                  `Hi LazyFlow, I run a ${s.title.toLowerCase()} business and want to explore automation for it.`,
+                  whatsappNumber
                 )}
                 target="_blank"
                 rel="noopener noreferrer"

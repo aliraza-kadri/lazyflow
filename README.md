@@ -1,6 +1,6 @@
 # LazyFlow — Official Website
 
-Business automation studio website + admin dashboard, built with Next.js (App
+Business automation platform website + admin dashboard, built with Next.js (App
 Router), TypeScript and Tailwind CSS v4.
 
 This build is **frontend-only**, as requested. No database, authentication or

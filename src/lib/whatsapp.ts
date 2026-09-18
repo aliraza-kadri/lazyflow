@@ -14,8 +14,9 @@ export function getStoredWhatsAppNumber() {
  * (src/config/site.ts).
  */
 export function buildWhatsAppLink(message: string, number: string = siteConfig.whatsappNumber) {
+  const cleanNumber = (number || siteConfig.whatsappNumber).replace(/\D/g, "");
   const encoded = encodeURIComponent(message);
-  return `https://wa.me/${number}?text=${encoded}`;
+  return `https://wa.me/${cleanNumber}?text=${encoded}`;
 }
 
 export const whatsappMessages = {
