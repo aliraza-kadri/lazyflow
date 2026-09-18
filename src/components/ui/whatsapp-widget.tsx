@@ -11,6 +11,7 @@ export default function FloatingWhatsAppWidget() {
   const [whatsappNumber, setWhatsappNumber] = useState(siteConfig.whatsappNumber);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [business, setBusiness] = useState("");
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -27,14 +28,15 @@ export default function FloatingWhatsAppWidget() {
     try {
       const savedName = localStorage.getItem("lf_user_name");
       const savedPhone = localStorage.getItem("lf_user_phone");
+      const savedBiz = localStorage.getItem("lf_user_biz");
       if (savedName) setName(savedName);
       if (savedPhone) setPhone(savedPhone);
+      if (savedBiz) setBusiness(savedBiz);
     } catch {}
   }, []);
 
   const handleStartChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) return;
 
     startTransition(async () => {
       try {
@@ -42,6 +44,7 @@ export default function FloatingWhatsAppWidget() {
         try {
           if (name.trim()) localStorage.setItem("lf_user_name", name.trim());
           if (phone.trim()) localStorage.setItem("lf_user_phone", phone.trim());
+          if (business.trim()) localStorage.setItem("lf_user_biz", business.trim());
         } catch {}
 
         // Send lead to Admin API
@@ -50,7 +53,8 @@ export default function FloatingWhatsAppWidget() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: name.trim() || "WhatsApp Visitor",
-            phone: phone.trim(),
+            phone: phone.trim() || "Direct on WhatsApp",
+            business: business.trim(),
             problem: message.trim() || "Enquiry from Floating WhatsApp Widget",
             source: "WhatsApp Widget",
             status: "New",
@@ -60,11 +64,16 @@ export default function FloatingWhatsAppWidget() {
         setHasSubmitted(true);
 
         // Build WhatsApp text
-        let greeting = `Hi LazyFlow, I would like to enquire about business automation.`;
-        if (name.trim()) {
-          greeting = `Hi LazyFlow, I am ${name.trim()}. ${message.trim() ? message.trim() : "I would like to discuss automating our business processes."}`;
-        } else if (message.trim()) {
-          greeting = `Hi LazyFlow, ${message.trim()}`;
+        let greeting = "Hi LazyFlow, I would like to explore business automation.";
+        const introParts: string[] = [];
+        if (name.trim()) introParts.push(`I am ${name.trim()}`);
+        if (business.trim()) introParts.push(`I run a ${business.trim()} business`);
+
+        if (introParts.length > 0) {
+          greeting = `Hi LazyFlow, ${introParts.join(" and ")}.`;
+        }
+        if (message.trim()) {
+          greeting += `\nI want to automate: ${message.trim()}`;
         }
 
         const link = buildWhatsAppLink(greeting, whatsappNumber);
@@ -76,9 +85,10 @@ export default function FloatingWhatsAppWidget() {
         }, 1500);
       } catch (err) {
         // Open WhatsApp even if network request had an issue
-        const fallbackText = name.trim()
-          ? `Hi LazyFlow, I am ${name.trim()}. I'd like to discuss business automation.`
-          : `Hi LazyFlow, I'd like to discuss business automation.`;
+        let fallbackText = "Hi LazyFlow, I'd like to discuss business automation.";
+        if (name.trim() || business.trim() || message.trim()) {
+          fallbackText = `Hi LazyFlow, I am ${name.trim() || "a visitor"}${business.trim() ? " (" + business.trim() + ")" : ""}.\n${message.trim() ? "I want to automate: " + message.trim() : "I want to discuss business automation."}`;
+        }
         window.open(buildWhatsAppLink(fallbackText, whatsappNumber), "_blank", "noopener,noreferrer");
       }
     });
@@ -92,7 +102,8 @@ export default function FloatingWhatsAppWidget() {
       body: JSON.stringify({
         name: name.trim() || "WhatsApp Click",
         phone: phone.trim() || "Direct Click",
-        problem: "User clicked direct WhatsApp link from widget",
+        business: business.trim(),
+        problem: message.trim() || "User clicked direct WhatsApp link from widget",
         source: "WhatsApp Direct",
         status: "New",
       }),
@@ -171,27 +182,39 @@ export default function FloatingWhatsAppWidget() {
 
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-lf-muted block mb-1">
-                WhatsApp Number <span className="text-red-500">*</span>
+                Business / Industry
               </label>
               <input
-                type="tel"
-                required
-                placeholder="e.g. +91 98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="text"
+                placeholder="e.g. Garments / Retail / Clinic / Real Estate"
+                value={business}
+                onChange={(e) => setBusiness(e.target.value)}
                 className="w-full rounded-xl border border-lf-border bg-lf-surface px-3 py-2 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-lf-muted block mb-1">
-                Process or Problem (Optional)
+                Process or Problem to Automate
               </label>
               <input
                 type="text"
                 placeholder="e.g. WhatsApp leads follow-up / Orders sync"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                className="w-full rounded-xl border border-lf-border bg-lf-surface px-3 py-2 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-lf-muted block mb-1">
+                WhatsApp Number <span className="text-[10px] font-normal text-lf-muted/70">(Optional)</span>
+              </label>
+              <input
+                type="tel"
+                placeholder="e.g. +91 98765 43210 (Optional)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full rounded-xl border border-lf-border bg-lf-surface px-3 py-2 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>

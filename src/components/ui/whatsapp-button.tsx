@@ -57,7 +57,6 @@ export default function WhatsAppButton({
 
   const handleProceed = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) return;
 
     setIsSubmitting(true);
     try {
@@ -73,7 +72,7 @@ export default function WhatsAppButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim() || "WhatsApp Visitor",
-          phone: phone.trim(),
+          phone: phone.trim() || "Direct on WhatsApp",
           business: business.trim(),
           problem: message || "WhatsApp Enquiry",
           source: "WhatsApp Button",
@@ -180,27 +179,26 @@ export default function WhatsAppButton({
 
               <div>
                 <label className="text-xs font-semibold text-lf-ink block mb-1.5">
-                  WhatsApp Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="e.g. +91 98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-lf-border bg-lf-surface px-3.5 py-2.5 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-lf-ink block mb-1.5">
-                  Business / Company Name (Optional)
+                  Business / Company Name
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. Sharma Textiles / Retail Store"
                   value={business}
                   onChange={(e) => setBusiness(e.target.value)}
+                  className="w-full rounded-xl border border-lf-border bg-lf-surface px-3.5 py-2.5 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-lf-ink block mb-1.5">
+                  WhatsApp Number <span className="text-xs font-normal text-lf-muted">(Optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="e.g. +91 98765 43210 (Optional)"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="w-full rounded-xl border border-lf-border bg-lf-surface px-3.5 py-2.5 text-sm text-lf-ink placeholder:text-lf-muted/60 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
