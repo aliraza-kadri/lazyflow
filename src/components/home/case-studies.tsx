@@ -48,41 +48,43 @@ export default async function CaseStudies() {
                   {cs.summary}
                 </p>
 
-                <div className="mt-6 flex flex-col gap-3.5 rounded-2xl bg-lf-surface/80 p-5 border border-lf-border/70">
+                <div className="mt-6 flex flex-col gap-3.5 rounded-2xl bg-lf-surface p-5 border border-lf-border">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-500 block mb-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600 block mb-1">
                       The Bottleneck / Problem
                     </span>
-                    <p className="text-xs sm:text-sm text-lf-ink/85 leading-relaxed">
+                    <p className="text-sm font-medium text-lf-ink leading-relaxed">
                       {cs.problem}
                     </p>
                   </div>
-                  <div className="border-t border-lf-border/50 pt-3">
+                  <div className="border-t border-lf-border pt-3">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-lf-accent block mb-1">
                       Our Automation Solution
                     </span>
-                    <p className="text-xs sm:text-sm text-lf-ink/85 leading-relaxed">
+                    <p className="text-sm font-medium text-lf-ink leading-relaxed">
                       {cs.solution}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4">
-                  <div className="flex items-start gap-2.5">
-                    <svg
-                      className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+                <div className="mt-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 p-4 sm:p-4.5">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm">
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
                     <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 block">
                         Measurable Result
                       </span>
-                      <p className="mt-0.5 text-xs sm:text-sm font-semibold text-emerald-950 dark:text-emerald-200 leading-relaxed">
+                      <p className="mt-1 text-sm sm:text-[15px] font-bold text-lf-ink dark:text-white leading-snug">
                         {cs.result}
                       </p>
                     </div>

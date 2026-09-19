@@ -4,6 +4,7 @@ import { Section, SectionHeading, Eyebrow } from "@/components/ui/section";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 import { whatsappMessages } from "@/lib/whatsapp";
 import { getContent } from "@/lib/db";
+import CaseStudies from "@/components/home/case-studies";
 
 export const metadata: Metadata = {
   title: "About",
@@ -102,6 +103,8 @@ export default async function AboutPage() {
           </div>
         </Section>
       </div>
+
+      <CaseStudies />
 
       <Section className="py-20 text-center">
         <h2 className="text-2xl font-bold text-lf-ink md:text-3xl">
