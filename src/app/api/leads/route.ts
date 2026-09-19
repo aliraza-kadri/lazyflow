@@ -65,17 +65,23 @@ export async function POST(request: Request) {
 
     const saved = await saveLead(newLead);
 
-    // Trigger instant email notifications asynchronously without blocking response
+    // In Vercel Serverless, await email dispatch so the lambda doesn't terminate before socket completes
     try {
-      sendNewLeadAdminNotification(saved).catch((err) => {
-        console.error("Admin lead notification error:", err);
-      });
+      const emailTasks: Promise<unknown>[] = [
+        sendNewLeadAdminNotification(saved)
+          .then((res) => console.log("Admin lead notification dispatched:", res))
+          .catch((err) => console.error("Admin notification dispatch error:", err)),
+      ];
 
-      if (saved.email) {
-        sendLeadAutoAcknowledgement(saved).catch((err) => {
-          console.error("Client acknowledgement error:", err);
-        });
+      if (saved.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(saved.email)) {
+        emailTasks.push(
+          sendLeadAutoAcknowledgement(saved)
+            .then((res) => console.log("Client confirmation email dispatched:", res))
+            .catch((err) => console.error("Client confirmation error:", err))
+        );
       }
+
+      await Promise.allSettled(emailTasks);
     } catch (dispatchErr) {
       console.error("Email notification dispatch error:", dispatchErr);
     }

@@ -21,30 +21,7 @@ export async function sendEmail({
   htmlContent,
   fromName = "LazyFlow",
 }: GenericEmailParams): Promise<{ sent: boolean; provider?: string; error?: string }> {
-  // 1. Try Resend if configured
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (resendApiKey) {
-    try {
-      const resend = new Resend(resendApiKey);
-      const fromEmail = process.env.RESEND_FROM_EMAIL || `${fromName} <onboarding@resend.dev>`;
-      const { error } = await resend.emails.send({
-        from: fromEmail,
-        to: [to],
-        subject,
-        html: htmlContent,
-      });
-
-      if (error) {
-        console.warn("Resend email warning:", error);
-      } else {
-        return { sent: true, provider: "resend" };
-      }
-    } catch (err) {
-      console.warn("Resend exception:", err);
-    }
-  }
-
-  // 2. Try Nodemailer if SMTP/Gmail credentials are configured
+  // 1. Try Gmail / Nodemailer first (no domain verification restrictions)
   const rawUser = process.env.SMTP_USER || process.env.GMAIL_USER;
   const smtpUser = rawUser ? rawUser.trim() : "";
   const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
@@ -82,17 +59,42 @@ export async function sendEmail({
         html: htmlContent,
       });
 
+      console.log(`[Email Success] Sent to ${to} via ${isGmail ? "Gmail" : "SMTP"}. ID: ${info.messageId}`);
       return { sent: true, provider: isGmail ? "gmail" : "smtp" };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("SMTP email send error:", message);
-      return { sent: false, error: message };
+      console.error("[Email Error] Gmail/SMTP attempt error:", message);
+    }
+  }
+
+  // 2. Fallback to Resend if RESEND_API_KEY is configured
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    try {
+      const resend = new Resend(resendApiKey);
+      const fromEmail = process.env.RESEND_FROM_EMAIL || `${fromName} <onboarding@resend.dev>`;
+      const { data, error } = await resend.emails.send({
+        from: fromEmail,
+        to: [to.trim()],
+        subject,
+        html: htmlContent,
+      });
+
+      if (error) {
+        console.error("[Email Error] Resend error:", error);
+      } else {
+        console.log(`[Email Success] Sent to ${to} via Resend. ID: ${data?.id}`);
+        return { sent: true, provider: "resend" };
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[Email Exception] Resend exception:", message);
     }
   }
 
   return {
     sent: false,
-    error: "No email provider configured (Add RESEND_API_KEY or GMAIL_USER/GMAIL_APP_PASSWORD).",
+    error: "No email provider configured or all providers failed (check GMAIL_USER/GMAIL_APP_PASSWORD).",
   };
 }
 
