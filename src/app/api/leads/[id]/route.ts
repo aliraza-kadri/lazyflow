@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getLeadById, saveLead, deleteLead } from "@/lib/db";
+import { isAuthorizedAdmin } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,11 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   const { id } = await params;
   const lead = await getLeadById(id);
   if (!lead) {
@@ -19,6 +25,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     const existing = await getLeadById(id);
@@ -38,6 +49,11 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   const { id } = await params;
   const deleted = await deleteLead(id);
   if (!deleted) {

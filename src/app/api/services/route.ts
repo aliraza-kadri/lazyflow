@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getServices, saveService, saveServices } from "@/lib/db";
 import { getDb } from "@/lib/mongodb";
+import { isAuthorizedAdmin } from "@/lib/auth-guard";
 import type { Service } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const db = await getDb();

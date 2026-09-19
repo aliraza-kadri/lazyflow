@@ -245,12 +245,14 @@ export default function AdminLeadDetailPage({ params }: { params: Promise<{ id: 
               <h2 className="text-sm font-semibold text-lf-ink">Quick Actions</h2>
               <div className="mt-4 flex flex-col gap-2.5">
                 <a
-                  href={`https://wa.me/${lead.phone.replace(/[^\d]/g, "")}`}
+                  href={`https://wa.me/${lead.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(
+                    `Hi ${lead.name.split(" ")[0]}, this is LazyFlow. We received your automation inquiry${lead.business ? ` for ${lead.business}` : ""}. How can we assist you?`
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-xl border border-lf-border px-3.5 py-2.5 text-center text-sm font-medium text-lf-ink hover:border-lf-accent/40"
                 >
-                  Message on WhatsApp
+                  Message on WhatsApp (with Template) ↗
                 </a>
                 <a
                   href={`mailto:${lead.email}`}

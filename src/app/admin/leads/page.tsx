@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminTopbar from "@/components/admin/topbar";
-import StatusBadge, { leadStatuses } from "@/components/admin/status-badge";
+import StatusBadge, { leadStatuses, statusStyles } from "@/components/admin/status-badge";
 import AddLeadModal from "@/components/admin/add-lead-modal";
 import Button from "@/components/ui/button";
 import type { Lead, LeadStatus } from "@/lib/types";
@@ -48,6 +48,22 @@ export default function AdminLeadsPage() {
 
   const toggleExpand = (id: string) => {
     setExpandedLeads((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleQuickStatusChange = async (id: string, newStatus: LeadStatus) => {
+    setLeadsList((prev) =>
+      prev.map((lead) => (lead.id === id ? { ...lead, status: newStatus } : lead))
+    );
+
+    try {
+      await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
   };
 
   const fetchLeads = () => {
@@ -309,7 +325,20 @@ export default function AdminLeadsPage() {
                       )}
                     </td>
                     <td className="px-5 py-4">
-                      <StatusBadge status={lead.status} />
+                      <select
+                        value={lead.status}
+                        onChange={(e) => handleQuickStatusChange(lead.id, e.target.value as LeadStatus)}
+                        className={`cursor-pointer rounded-full border px-2.5 py-1 text-xs font-semibold outline-none transition-colors ${
+                          statusStyles[lead.status] || "bg-lf-surface text-lf-muted border-lf-border"
+                        }`}
+                        title="Click to update status"
+                      >
+                        {leadStatuses.map((s) => (
+                          <option key={s} value={s} className="bg-lf-card text-lf-ink">
+                            {s}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-xs text-lf-muted">
                       {new Date(lead.createdAt).toLocaleDateString("en-IN", {
@@ -322,12 +351,15 @@ export default function AdminLeadsPage() {
                     <td className="px-5 py-4 text-right">
                       {lead.phone && (
                         <a
-                          href={`https://wa.me/${lead.phone.replace(/[^\d]/g, "")}`}
+                          href={`https://wa.me/${lead.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(
+                            `Hi ${lead.name.split(" ")[0]}, this is LazyFlow. We received your automation inquiry${lead.business ? ` for ${lead.business}` : ""}. How can we assist you?`
+                          )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-colors"
+                          title="Open WhatsApp chat with prefilled template"
                         >
-                          Chat
+                          Chat ↗
                         </a>
                       )}
                     </td>

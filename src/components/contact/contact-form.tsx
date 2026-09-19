@@ -66,6 +66,7 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   function update<K extends keyof ContactFormValues>(key: K, value: ContactFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -91,6 +92,7 @@ export default function ContactForm() {
           industry: values.industry,
           problem: values.problem,
           process: values.process,
+          website_hp: honeypot,
           source: "Website Form",
           status: "New",
         }),
@@ -143,6 +145,17 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="rounded-3xl border border-lf-border bg-lf-card p-6 md:p-10">
+      {/* Anti-spam honeypot (hidden from real users) */}
+      <input
+        type="text"
+        name="website_hp"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        className="hidden opacity-0 pointer-events-none absolute -left-[9999px]"
+        aria-hidden="true"
+      />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Full Name" error={errors.name}>
           <TextInput

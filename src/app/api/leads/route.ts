@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { getLeads, saveLead, clearAllLeads, loadSampleLeads } from "@/lib/db";
+import { isAuthorizedAdmin } from "@/lib/auth-guard";
+import { sendNewLeadAdminNotification, sendLeadAutoAcknowledgement } from "@/lib/email";
 import type { Lead } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   const leads = await getLeads();
   return NextResponse.json(leads, {
     headers: {
@@ -18,15 +25,27 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Check special action requests
-    if (body.action === "load_sample") {
-      const sampleLeads = await loadSampleLeads();
-      return NextResponse.json({ success: true, leads: sampleLeads });
+    // Check special action requests (restricted to admin)
+    if (body.action === "load_sample" || body.action === "clear_all") {
+      const isAdmin = await isAuthorizedAdmin(request);
+      if (!isAdmin) {
+        return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+      }
+
+      if (body.action === "load_sample") {
+        const sampleLeads = await loadSampleLeads();
+        return NextResponse.json({ success: true, leads: sampleLeads });
+      }
+
+      if (body.action === "clear_all") {
+        await clearAllLeads();
+        return NextResponse.json({ success: true, leads: [] });
+      }
     }
 
-    if (body.action === "clear_all") {
-      await clearAllLeads();
-      return NextResponse.json({ success: true, leads: [] });
+    // Honeypot check (anti-spam bot trap)
+    if (body.website_hp || body.hp_field) {
+      return NextResponse.json({ success: true, message: "Inquiry received" }, { status: 201 });
     }
 
     const newLead: Lead = {
@@ -45,6 +64,22 @@ export async function POST(request: Request) {
     };
 
     const saved = await saveLead(newLead);
+
+    // Trigger instant email notifications asynchronously without blocking response
+    try {
+      sendNewLeadAdminNotification(saved).catch((err) => {
+        console.error("Admin lead notification error:", err);
+      });
+
+      if (saved.email) {
+        sendLeadAutoAcknowledgement(saved).catch((err) => {
+          console.error("Client acknowledgement error:", err);
+        });
+      }
+    } catch (dispatchErr) {
+      console.error("Email notification dispatch error:", dispatchErr);
+    }
+
     return NextResponse.json(saved, {
       status: 201,
       headers: {
@@ -57,7 +92,12 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
+  const isAdmin = await isAuthorizedAdmin(request);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
+
   try {
     await clearAllLeads();
     return NextResponse.json({ success: true, message: "All leads cleared" });
