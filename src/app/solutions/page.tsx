@@ -7,7 +7,6 @@ import { whatsappMessages, buildWhatsAppLink } from "@/lib/whatsapp";
 
 import { getSettings } from "@/lib/db";
 import { siteConfig } from "@/config/site";
-import CaseStudies from "@/components/home/case-studies";
 
 export const metadata: Metadata = {
   title: "Solutions",
@@ -57,8 +56,6 @@ export default async function SolutionsPage() {
           ))}
         </div>
       </Section>
-
-      <CaseStudies />
 
       <div className="bg-lf-surface">
         <Section className="py-20 text-center">
