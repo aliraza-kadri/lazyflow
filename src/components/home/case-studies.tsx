@@ -41,33 +41,33 @@ export default async function CaseStudies() {
                   </span>
                 </div>
 
-                <h3 className="mt-4 text-xl font-bold text-lf-ink leading-snug">
+                <h3 className="mt-4 text-xl font-bold text-slate-950 leading-snug" style={{ color: "#020617" }}>
                   {cs.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-lf-muted">
+                <p className="mt-2 text-sm leading-relaxed text-slate-600" style={{ color: "#475569" }}>
                   {cs.summary}
                 </p>
 
-                <div className="mt-6 flex flex-col gap-3.5 rounded-2xl bg-lf-surface p-5 border border-lf-border">
+                <div className="mt-6 flex flex-col gap-3.5 rounded-2xl bg-slate-50 p-5 border border-slate-200">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600 block mb-1">
                       The Bottleneck / Problem
                     </span>
-                    <p className="text-sm font-medium text-lf-ink leading-relaxed">
+                    <p className="text-sm font-medium text-slate-900 leading-relaxed" style={{ color: "#0f172a" }}>
                       {cs.problem}
                     </p>
                   </div>
-                  <div className="border-t border-lf-border pt-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-lf-accent block mb-1">
+                  <div className="border-t border-slate-200 pt-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1">
                       Our Automation Solution
                     </span>
-                    <p className="text-sm font-medium text-lf-ink leading-relaxed">
+                    <p className="text-sm font-medium text-slate-900 leading-relaxed" style={{ color: "#0f172a" }}>
                       {cs.solution}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 p-4 sm:p-4.5">
+                <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-300 p-4 sm:p-4.5">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm">
                       <svg
@@ -81,10 +81,10 @@ export default async function CaseStudies() {
                       </svg>
                     </div>
                     <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-850 block" style={{ color: "#065f46" }}>
                         Measurable Result
                       </span>
-                      <p className="mt-1 text-sm sm:text-[15px] font-bold text-lf-ink dark:text-white leading-snug">
+                      <p className="mt-1 text-sm sm:text-[15px] font-bold leading-snug" style={{ color: "#022c22" }}>
                         {cs.result}
                       </p>
                     </div>
