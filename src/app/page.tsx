@@ -4,6 +4,7 @@ import WhatWeDo from "@/components/home/what-we-do";
 import AutomationAreas from "@/components/home/automation-areas";
 import HowItWorks from "@/components/home/how-it-works";
 import SolutionsGrid from "@/components/home/solutions-grid";
+import CaseStudies from "@/components/home/case-studies";
 import AutomationFinder from "@/components/home/automation-finder";
 import FinalCta from "@/components/home/final-cta";
 
@@ -19,6 +20,7 @@ export default function Home() {
       <AutomationAreas />
       <HowItWorks />
       <SolutionsGrid compact />
+      <CaseStudies />
       <AutomationFinder />
       <FinalCta />
     </>
